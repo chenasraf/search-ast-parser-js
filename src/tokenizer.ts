@@ -3,16 +3,16 @@ import { InputReader } from './reader'
 export enum TokenizerState {
   default,
   inPhrase,
-  // inGroup,
 }
 
 export enum Token {
-  phrase = 'phrase',
+  // phrase = 'phrase',
   group = 'group',
   operator = 'operator',
   word = 'word',
+  quote = 'quote',
   whitespace = 'whitespace',
-  eof = 'eof',
+  // eof = 'eof',
 }
 
 export interface TokenValue {
@@ -52,7 +52,7 @@ export class Tokenizer implements InputReader<TokenValue> {
         if (`"'`.includes(nextChar)) {
           this.state = TokenizerState.inPhrase
           this.quoteTerminator = nextChar
-          return this.consumePhrase()
+          return this.consumeQuote()
         }
 
         if (this.isAlphanumeric(nextChar.charCodeAt(0))) {
@@ -74,18 +74,24 @@ export class Tokenizer implements InputReader<TokenValue> {
         }
 
         if (nextChar === '(' || nextChar === ')') {
-          // this.state = TokenizerState.inGroup
           return this.consumeGroup()
         }
         return this.consumeWord()
       case TokenizerState.inPhrase:
         if (nextChar === this.quoteTerminator) {
           this.state = TokenizerState.default
-          return this.consumePhrase()
+          return this.consumeQuote()
         }
-        return this.consumeWord()
+        return this.consumePhrase()
       default:
         throw new Error('bad state')
+    }
+  }
+
+  consumeQuote(): TokenValue {
+    return {
+      value: this.reader.consume(),
+      token: Token.quote,
     }
   }
 
@@ -157,11 +163,9 @@ export class Tokenizer implements InputReader<TokenValue> {
     while ((nextChar = this.reader.peek()) && nextChar !== this.quoteTerminator) {
       value += this.reader.consume()
     }
-    value += nextChar
-    this.reader.consume()
     return {
       value,
-      token: Token.phrase,
+      token: Token.word,
     }
   }
 
