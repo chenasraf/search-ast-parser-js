@@ -56,17 +56,21 @@ export class Tokenizer implements InputReader<TokenValue> {
         }
 
         if (this.isAlphanumeric(nextChar.charCodeAt(0))) {
-          if (nextChar.toUpperCase() === 'O' && this.reader.peek(1) === 'R') {
+          if (this.confirmExactWord('OR')) {
             return this.consumeOr()
           }
-          if (
-            nextChar.toUpperCase() === 'A' &&
-            this.reader.peek(1) === 'N' &&
-            this.reader.peek(2) === 'D'
-          ) {
+          if (this.confirmExactWord('AND')) {
             return this.consumeAnd()
           }
           return this.consumeWord()
+        }
+
+        if (nextChar === '|') {
+          return this.consumeOr()
+        }
+
+        if (nextChar === '&') {
+          return this.consumeAnd()
         }
 
         if (nextChar === '(' || nextChar === ')') {
@@ -84,21 +88,59 @@ export class Tokenizer implements InputReader<TokenValue> {
         throw new Error('bad state')
     }
   }
+
   consumeAnd(): TokenValue {
-    this.reader.consume()
-    this.reader.consume()
-    this.reader.consume()
+    let value = ''
+    if (this.confirmExactWord('AND')) {
+      this.consumeExactWord('AND')
+      value = 'and'
+    } else if (this.confirmExactWord('&')) {
+      this.consumeExactWord('&')
+      value = '&'
+    }
     return {
-      value: 'and',
+      value,
       token: Token.operator,
     }
   }
+
   consumeOr(): TokenValue {
-    this.reader.consume()
-    this.reader.consume()
+    let value = ''
+    if (this.confirmExactWord('OR')) {
+      this.consumeExactWord('OR')
+      value = 'or'
+    } else if (this.confirmExactWord('|')) {
+      this.consumeExactWord('|')
+      value = '|'
+    }
     return {
-      value: 'or',
+      value,
       token: Token.operator,
+    }
+  }
+
+  confirmExactWord(word: string) {
+    let nextChar = this.reader.peek()
+    for (let i = 0; i < word.length; i++) {
+      if (nextChar !== word[i]) {
+        return false
+      }
+      nextChar = this.reader.peek(i + 1)
+    }
+    return true
+  }
+
+  consumeExactWord(word: string) {
+    if (this.confirmExactWord(word)) {
+      this.consumeReader(word.length)
+    } else {
+      throw new Error("Can't find exact word: " + word)
+    }
+  }
+
+  consumeReader(times = 1) {
+    for (let i = 0; i < times; i++) {
+      this.reader.consume()
     }
   }
 
@@ -165,10 +207,6 @@ export class Tokenizer implements InputReader<TokenValue> {
     }
     return tokens
   }
-
-  // public read() {
-  //   throw new Error('Method not implemented.')
-  // }
 
   private isWhitespace(nextChar: string) {
     return ' \t\n\r'.includes(nextChar)

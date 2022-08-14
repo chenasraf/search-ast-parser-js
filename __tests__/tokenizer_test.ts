@@ -19,87 +19,130 @@ describe('Tokenizer', () => {
   })
 
   describe('Groups', () => {
-    it('Should tokenize single-word group', () => {
+    test('Should tokenize single-word group', () => {
       const reader = new StringReader('(word)')
       const tokenizer = new Tokenizer(reader)
+      const tokens = tokenizer.read()
 
-      let token = tokenizer.consume()
-      expect(token.token).toBe(Token.group)
-      expect(token.value).toBe('(')
+      expect(tokens[0].token).toBe(Token.group)
+      expect(tokens[0].value).toBe('(')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.word)
-      expect(token.value).toBe('word')
+      expect(tokens[1].token).toBe(Token.word)
+      expect(tokens[1].value).toBe('word')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.group)
-      expect(token.value).toBe(')')
+      expect(tokens[2].token).toBe(Token.group)
+      expect(tokens[2].value).toBe(')')
     })
 
-    it('Should tokenize logical operator OR group', () => {
-      const reader = new StringReader('(word OR word)')
-      const tokenizer = new Tokenizer(reader)
+    describe('logical operator OR group', () => {
+      test('should parse OR separator', () => {
+        const reader = new StringReader('(word OR word)')
+        const tokenizer = new Tokenizer(reader)
+        const tokens = tokenizer.read()
 
-      let token = tokenizer.consume()
-      expect(token.token).toBe(Token.group)
-      expect(token.value).toBe('(')
+        expect(tokens[0].token).toBe(Token.group)
+        expect(tokens[0].value).toBe('(')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.word)
-      expect(token.value).toBe('word')
+        expect(tokens[1].token).toBe(Token.word)
+        expect(tokens[1].value).toBe('word')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.whitespace)
-      expect(token.value).toBe(' ')
+        expect(tokens[2].token).toBe(Token.whitespace)
+        expect(tokens[2].value).toBe(' ')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.operator)
-      expect(token.value).toBe('or')
+        expect(tokens[3].token).toBe(Token.operator)
+        expect(tokens[3].value).toBe('or')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.whitespace)
-      expect(token.value).toBe(' ')
+        expect(tokens[4].token).toBe(Token.whitespace)
+        expect(tokens[4].value).toBe(' ')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.word)
-      expect(token.value).toBe('word')
+        expect(tokens[5].token).toBe(Token.word)
+        expect(tokens[5].value).toBe('word')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.group)
-      expect(token.value).toBe(')')
+        expect(tokens[6].token).toBe(Token.group)
+        expect(tokens[6].value).toBe(')')
+      })
+
+      test('should parse | separator', () => {
+        const reader = new StringReader('(word | word)')
+        const tokenizer = new Tokenizer(reader)
+        const tokens = tokenizer.read()
+
+        expect(tokens[0].token).toBe(Token.group)
+        expect(tokens[0].value).toBe('(')
+
+        expect(tokens[1].token).toBe(Token.word)
+        expect(tokens[1].value).toBe('word')
+
+        expect(tokens[2].token).toBe(Token.whitespace)
+        expect(tokens[2].value).toBe(' ')
+
+        expect(tokens[3].token).toBe(Token.operator)
+        expect(tokens[3].value).toBe('|')
+
+        expect(tokens[4].token).toBe(Token.whitespace)
+        expect(tokens[4].value).toBe(' ')
+
+        expect(tokens[5].token).toBe(Token.word)
+        expect(tokens[5].value).toBe('word')
+
+        expect(tokens[6].token).toBe(Token.group)
+        expect(tokens[6].value).toBe(')')
+      })
     })
 
-    it('Should tokenize logical operator AND group', () => {
-      const reader = new StringReader('(word AND word)')
-      const tokenizer = new Tokenizer(reader)
+    describe('logical operator AND group', () => {
+      test('should parse AND separator', () => {
+        const reader = new StringReader('(word AND word)')
+        const tokenizer = new Tokenizer(reader)
+        const tokens = tokenizer.read()
 
-      let token = tokenizer.consume()
-      expect(token.token).toBe(Token.group)
-      expect(token.value).toBe('(')
+        expect(tokens[0].token).toBe(Token.group)
+        expect(tokens[0].value).toBe('(')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.word)
-      expect(token.value).toBe('word')
+        expect(tokens[1].token).toBe(Token.word)
+        expect(tokens[1].value).toBe('word')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.whitespace)
-      expect(token.value).toBe(' ')
+        expect(tokens[2].token).toBe(Token.whitespace)
+        expect(tokens[2].value).toBe(' ')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.operator)
-      expect(token.value).toBe('and')
+        expect(tokens[3].token).toBe(Token.operator)
+        expect(tokens[3].value).toBe('and')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.whitespace)
-      expect(token.value).toBe(' ')
+        expect(tokens[4].token).toBe(Token.whitespace)
+        expect(tokens[4].value).toBe(' ')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.word)
-      expect(token.value).toBe('word')
+        expect(tokens[5].token).toBe(Token.word)
+        expect(tokens[5].value).toBe('word')
 
-      token = tokenizer.consume()
-      expect(token.token).toBe(Token.group)
-      expect(token.value).toBe(')')
+        expect(tokens[6].token).toBe(Token.group)
+        expect(tokens[6].value).toBe(')')
+      })
+      test('should parse & separator', () => {
+        const reader = new StringReader('(word & word)')
+        const tokenizer = new Tokenizer(reader)
+        const tokens = tokenizer.read()
+
+        expect(tokens[0].token).toBe(Token.group)
+        expect(tokens[0].value).toBe('(')
+
+        expect(tokens[1].token).toBe(Token.word)
+        expect(tokens[1].value).toBe('word')
+
+        expect(tokens[2].token).toBe(Token.whitespace)
+        expect(tokens[2].value).toBe(' ')
+
+        expect(tokens[3].token).toBe(Token.operator)
+        expect(tokens[3].value).toBe('&')
+
+        expect(tokens[4].token).toBe(Token.whitespace)
+        expect(tokens[4].value).toBe(' ')
+
+        expect(tokens[5].token).toBe(Token.word)
+        expect(tokens[5].value).toBe('word')
+
+        expect(tokens[6].token).toBe(Token.group)
+        expect(tokens[6].value).toBe(')')
+      })
     })
   })
 })
