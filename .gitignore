@@ -1,2 +1,4 @@
-/coverage
-/node_modules
+# Coverage directory used by tools like istanbul
+coverage
+# Dependency directories
+node_modules/

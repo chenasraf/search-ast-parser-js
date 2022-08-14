@@ -2,6 +2,7 @@ export abstract class InputReader<T> {
   public abstract peek(n?: number): T
   public abstract consume(n?: number): T
   public abstract setIndex(n: number): void
+  public abstract isEOF(): boolean
   public index!: number
 }
 
@@ -27,6 +28,10 @@ export class BufferReader implements InputReader<string> {
   public setIndex(n: number): void {
     this.index = n
   }
+
+  public isEOF(): boolean {
+    return this.index >= this.buffer.length
+  }
 }
 
 export class StringReader implements InputReader<string> {
@@ -38,16 +43,20 @@ export class StringReader implements InputReader<string> {
   }
 
   public peek(n = 0): string {
-    return this.string.substring(this.index + n, this.index + 1)
+    return this.string.substring(this.index + n, this.index + n + 1)
   }
 
   public consume(n = 0): string {
-    const result = this.string.substring(this.index + n, this.index + 1)
+    const result = this.string.substring(this.index + n, this.index + n + 1)
     this.index++
     return result
   }
 
   public setIndex(n: number): void {
     this.index = n
+  }
+
+  public isEOF(): boolean {
+    return this.index >= this.string.length
   }
 }

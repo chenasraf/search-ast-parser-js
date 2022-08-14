@@ -3,7 +3,7 @@ import { InputReader } from './reader'
 export enum TokenizerState {
   default,
   inPhrase,
-  inGroup,
+  // inGroup,
 }
 
 export enum Token {
@@ -29,6 +29,10 @@ export class Tokenizer implements InputReader<TokenValue> {
 
   constructor(reader: InputReader<string>) {
     this.reader = reader
+  }
+
+  public isEOF(): boolean {
+    return this.reader.isEOF()
   }
 
   public setIndex(n: number): void {
@@ -65,8 +69,8 @@ export class Tokenizer implements InputReader<TokenValue> {
           return this.consumeWord()
         }
 
-        if (nextChar === '(') {
-          this.state = TokenizerState.inGroup
+        if (nextChar === '(' || nextChar === ')') {
+          // this.state = TokenizerState.inGroup
           return this.consumeGroup()
         }
         return this.consumeWord()
@@ -76,23 +80,22 @@ export class Tokenizer implements InputReader<TokenValue> {
           return this.consumePhrase()
         }
         return this.consumeWord()
-      case TokenizerState.inGroup:
-        if (nextChar === ')') {
-          this.state = TokenizerState.default
-          return this.consumeGroup()
-        }
-        return this.consumeWord()
       default:
         throw new Error('bad state')
     }
   }
   consumeAnd(): TokenValue {
+    this.reader.consume()
+    this.reader.consume()
+    this.reader.consume()
     return {
       value: 'and',
       token: Token.operator,
     }
   }
   consumeOr(): TokenValue {
+    this.reader.consume()
+    this.reader.consume()
     return {
       value: 'or',
       token: Token.operator,
@@ -153,6 +156,14 @@ export class Tokenizer implements InputReader<TokenValue> {
     // this.reader.consume()
     this.index++
     return token
+  }
+
+  public read(): TokenValue[] {
+    const tokens: TokenValue[] = []
+    while (!this.isEOF()) {
+      tokens.push(this.consume())
+    }
+    return tokens
   }
 
   // public read() {
