@@ -11,6 +11,7 @@ test('should parse single word', () => {
   expect(wordToken.type).toBe('word')
   expect(wordToken.value).toBe('word')
 })
+
 test('should parse OR operator', () => {
   const reader = new StringReader('word OR "phrase"')
   const lexer = new Lexer(reader)

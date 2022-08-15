@@ -60,16 +60,14 @@ export class Parser extends IParser {
 
   public peek(amount = 0): ParserToken | null {
     const cacheIndex = this.index + amount
-    if (this.isEOF()) {
-      return null
-    }
     if (cacheIndex < this.cache.length) {
       return this.cache[cacheIndex]
     }
-    // const beforePeekIndex = this.lexer.index
+    if (this.isEOF()) {
+      return null
+    }
     this.fillCache(cacheIndex)
     const token = this.cache[cacheIndex]
-    // this.lexer.setIndex(beforePeekIndex)
     return token
   }
 
@@ -136,7 +134,7 @@ export class Parser extends IParser {
           nextToken = this.lexer.peek(1)
           this.lexer.consume()
         }
-        if (nextToken?.token === 'group' || nextToken?.token === 'operator') {
+        if (nextToken?.token === 'operator') {
           this.index++
           return this.consumeOperator(token!, nextToken)
         }
@@ -163,12 +161,10 @@ export class Parser extends IParser {
   }
 
   private consumeOperator(left: LexerTokenValue, opToken: LexerTokenValue): ParserToken | null {
-    // const left = this.cache[this.cache.length - 1]
     this.index++
     this.lexer.consume()
     const right = this.readNextToken()
     this.lexer.consume()
-    // const right = this.readNextToken()
     return { type: 'operator', value: opToken.value, left, right }
   }
 }

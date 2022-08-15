@@ -42,26 +42,16 @@ export class Lexer implements ILexer {
 
   public peek(amount = 0): LexerTokenValue | null {
     const cacheIndex = this.index + amount
-    if (this.isEOF()) {
-      return null
-    }
 
     if (this.cache[cacheIndex]) {
       return this.cache[cacheIndex]
     }
-
-    // save state before peeking
-    // const beforePeekState = this.state
-    // const beforePeekIndex = this.reader.index
-    // const beforePeekWhiteSpace = this.afterWhitespace
+    if (this.isEOF()) {
+      return null
+    }
 
     this.fillCache(cacheIndex)
     const token = this.cache[cacheIndex]
-
-    // restore state after peeking
-    // this.state = beforePeekState
-    // this.reader.setIndex(beforePeekIndex)
-    // this.afterWhitespace = beforePeekWhiteSpace
 
     return token
   }
@@ -272,7 +262,6 @@ export class Lexer implements ILexer {
   }
 
   private consumeWholeWord() {
-    // let nextChar = this.reader.peek()
     let value = ''
     while (this.isAlphanumeric(this.reader.peek())) {
       value += this.reader.consume()
