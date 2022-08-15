@@ -134,33 +134,48 @@ export class Parser extends IParser {
           nextToken = this.lexer.peek(1)
           this.lexer.consume()
         }
-        if (nextToken?.token === 'operator') {
-          this.index++
-          return this.consumeOperator(token!, nextToken)
-        }
-        switch (token?.token) {
-          case LexerToken.word:
-            return { type: 'word', value: this.lexer.consume()!.value }
-          case LexerToken.quote:
-            return this.consumePhrase(token)
+        // lookahead
+        switch (nextToken?.token) {
           case LexerToken.operator:
-            return this.consumeOperator(token, nextToken!)
-          default:
-            return null
+            this.index++
+            return this.consumeOperator(this.parseNormalLexToken(token!)!, nextToken)
         }
+
+        // no special token coming up, proceed with this token
+        this.lexer.consume()
+        return this.parseNormalLexToken(token)
       default:
         throw new Error('Bad state')
     }
   }
 
-  private consumePhrase(token: LexerTokenValue): ParserToken | null {
-    this.lexer.consume()
-    const quoteContent = this.lexer.consume()!
-    this.lexer.consume()
+  private parseNormalLexToken(token: LexerTokenValue | null): ParserToken | null {
+    switch (token?.token) {
+      case LexerToken.word:
+        return this.consumeWord(token)
+      case LexerToken.quote:
+        // TODO might need to reconsider consuming here.
+        const quoteContent = this.lexer.consume()!
+        this.lexer.consume()
+        return this.consumePhrase(token, quoteContent)
+      // case LexerToken.operator:
+      //   return this.consumeOperator(token, nextToken!)
+      default:
+        return null
+    }
+  }
+
+  private consumeWord(word: LexerTokenValue): ParserToken | null {
+    // TODO might need to reconsider consuming here.
+    return { type: 'word', value: word.value }
+  }
+
+  private consumePhrase(token: LexerTokenValue, quoteContent: LexerTokenValue): ParserToken | null {
+    // TODO might need to reconsider consuming here.
     return { type: 'phrase', value: quoteContent.value, quote: token.value as '"' }
   }
 
-  private consumeOperator(left: LexerTokenValue, opToken: LexerTokenValue): ParserToken | null {
+  private consumeOperator(left: ParserToken, opToken: LexerTokenValue): ParserToken | null {
     this.index++
     this.lexer.consume()
     const right = this.readNextToken()

@@ -17,8 +17,17 @@ test('should parse OR operator', () => {
   const lexer = new Lexer(reader)
   const parser = new Parser(lexer)
   const tokens = parser.parse()
-  const wordToken = tokens[0] as Operator
-  expect(wordToken.type).toBe('operator')
-  expect(wordToken.left.value).toBe('word')
-  expect(wordToken.right.value).toBe('phrase')
+  expect(tokens[0]).toEqual({
+    type: 'operator',
+    value: 'or',
+    left: {
+      type: 'word',
+      value: 'word',
+    },
+    right: {
+      type: 'phrase',
+      value: 'phrase',
+      quote: '"',
+    },
+  })
 })
