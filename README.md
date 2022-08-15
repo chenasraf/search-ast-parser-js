@@ -90,11 +90,11 @@ const result = [
 
 ## How to use
 
-Simply pass a string to the parse to get the result.
+Simply pass a string to the parse function to get the results.
 
 ```js
 import { parse } from 'search-query-parser'
-const result = parse('(mango banana lemon) OR apple -pineapple')
+const results = parse('(mango banana lemon) OR apple -pineapple')
 ```
 
 ## Supported operators
