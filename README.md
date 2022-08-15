@@ -1,10 +1,12 @@
-<h1>Search Query AST for JS</h1>
+<h1>Search Query Parser for JS</h1>
 
 This is a package for JS applications that parses search queries with the common search operator
 features such as logical or/and, grouping, phrases (in quotes), etc.
 
 This package **does not** implement a search mechanism using the resulting tree, that is up to the
 package user (you). It only returns the logical tree of search.
+
+---
 
 <!-- toc -->
 <details>
@@ -91,7 +93,7 @@ const result = [
 Simply pass a string to the parse to get the result.
 
 ```js
-import { parse } from 'search-query-ast'
+import { parse } from 'search-query-parser'
 const result = parse('(mango banana lemon) OR apple -pineapple')
 ```
 
