@@ -15,6 +15,8 @@ package user (you). It only returns the logical tree of search.
 - [Example results](#example-results)
 - [How to use](#how-to-use)
 - [Supported operators](#supported-operators)
+  - [Implemented](#implemented)
+  - [To Do](#to-do)
 
 </details>
 <!-- /toc -->
@@ -101,6 +103,8 @@ const results = parse('(mango banana lemon) OR apple -pineapple')
 
 This is the comprehensive list of operators and their object results:
 
+### Implemented
+
 - **Word:** `example`
 
   Any single word. Only alpha-numeric characters, dashes and underscores are considered a word. The
@@ -184,7 +188,9 @@ This is the comprehensive list of operators and their object results:
   }
   ```
 
-- Exclusion: `-example`
+### To Do
+
+- **Exclusion:** `-example`
 
   An exclusion is an indication to not include results using the given word, phrase or group.
 
@@ -197,5 +203,37 @@ This is the comprehensive list of operators and their object results:
       type: 'word',
       value: 'example'
     }
+  }
+  ```
+
+- **Domain:** `example-domain:example-token`
+
+  A domain prefix signals the following token to only refer to the prefixing domain. For example, a
+  user could search `name:apple` to only search the word `apple` within the `name` property of the
+  object being searched on.
+
+  **Object:**
+
+  ```js
+  {
+    type: 'domain',
+    domain: 'example-domain',
+    value: { // all types of children nodes such as word, phrase, etc
+      type: 'word',
+      value: 'example-token',
+    }
+  }
+  ```
+
+- **User:** `@example-user`
+
+  A user query can signal only searching content from a specific user.
+
+  **Object:**
+
+  ```js
+  {
+    type: 'user',
+    value: 'example-user',
   }
   ```

@@ -274,11 +274,15 @@ export class Lexer implements ILexer {
   }
 
   private isAlphanumeric(char: string): boolean {
-    const charCode = char.charCodeAt(0)
-    return (
-      (charCode >= 48 && charCode <= 57) ||
-      (charCode >= 65 && charCode <= 90) ||
-      (charCode >= 97 && charCode <= 122)
-    )
+    return /^(\w|\d|[-_])$/.test(char)
+
+    // return char.length > 0 && 'abcdefghijklmnopqrstuvwxyz0123456789-_'.includes(char.toLowerCase())
+
+    // const charCode = char.charCodeAt(0)
+    // return (
+    //   (charCode >= 48 && charCode <= 57) ||
+    //   (charCode >= 65 && charCode <= 90) ||
+    //   (charCode >= 97 && charCode <= 122)
+    // )
   }
 }
