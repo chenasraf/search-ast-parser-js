@@ -1,6 +1,6 @@
 import { Operator, Parser, Word } from '../src/parser'
 import { StringReader } from '../src/reader'
-import { Lexer } from '../src/tokenizer'
+import { Lexer } from '../src/lexer'
 
 test('should parse single word', () => {
   const reader = new StringReader('word')
@@ -19,5 +19,5 @@ test('should parse OR operator', () => {
   const wordToken = tokens[0] as Operator
   expect(wordToken.type).toBe('operator')
   expect(wordToken.left.value).toBe('word')
-  expect(wordToken.right.value).toBe('"phrase"')
+  expect(wordToken.right.value).toBe('phrase')
 })

@@ -1,6 +1,6 @@
 import { InputReader } from './reader'
 
-export enum TokenizerState {
+export enum lexerState {
   default,
   inPhrase,
 }
@@ -19,8 +19,8 @@ export interface LexerTokenValue {
 }
 
 export abstract class ILexer {
-  public abstract peek(): LexerTokenValue
-  public abstract consume(): LexerTokenValue
+  public abstract peek(amount?: number): LexerTokenValue | null
+  public abstract consume(amount?: number): LexerTokenValue | null
   public abstract isEOF(): boolean
   public abstract parse(): LexerTokenValue[]
   public abstract index: number
@@ -29,44 +29,79 @@ export abstract class ILexer {
 
 export class Lexer implements ILexer {
   reader: InputReader<string>
-  state: TokenizerState = TokenizerState.default
+  state: lexerState = lexerState.default
   quoteTerminator: string | null = null
   index: number = 0
   peekIndex: number = 0
   afterWhitespace: boolean = false
+  cache: LexerTokenValue[] = []
 
   constructor(reader: InputReader<string>) {
     this.reader = reader
   }
 
-  // TODO implement peek by (n)?
-  public peek(): LexerTokenValue {
-    // save state before peeking
-    const beforePeekState = this.state
-    const beforePeekIndex = this.reader.index
-    const beforePeekWhiteSpace = this.afterWhitespace
+  public peek(amount = 0): LexerTokenValue | null {
+    const cacheIndex = this.index + amount
+    if (this.isEOF()) {
+      return null
+    }
 
-    const value = this.readNextToken()
+    if (this.cache[cacheIndex]) {
+      return this.cache[cacheIndex]
+    }
+
+    // save state before peeking
+    // const beforePeekState = this.state
+    // const beforePeekIndex = this.reader.index
+    // const beforePeekWhiteSpace = this.afterWhitespace
+
+    this.fillCache(cacheIndex)
+    const token = this.cache[cacheIndex]
 
     // restore state after peeking
-    this.state = beforePeekState
-    this.reader.setIndex(beforePeekIndex - 1)
-    this.afterWhitespace = beforePeekWhiteSpace
+    // this.state = beforePeekState
+    // this.reader.setIndex(beforePeekIndex)
+    // this.afterWhitespace = beforePeekWhiteSpace
 
-    return value
+    return token
   }
 
-  // TODO implement consume by (n)?
-  public consume(): LexerTokenValue {
-    const token = this.readNextToken()
-    this.index++
+  public consume(amount = 0): LexerTokenValue | null {
+    const cacheIndex = this.index + amount
+    this.index = cacheIndex + 1
+
+    if (this.cache[cacheIndex]) {
+      return this.cache[cacheIndex]
+    }
+    if (this.isEOF()) {
+      return null
+    }
+
+    this.fillCache(cacheIndex)
+    const token = this.cache[cacheIndex]
     return token
+  }
+
+  private fillCache(n: number) {
+    const { index } = this
+    for (let i = 0; i <= n; i++) {
+      this.index = i
+      if (this.isEOF()) {
+        return
+      }
+      if (this.cache[i]) {
+        continue
+      }
+      const value = this.readNextToken()
+      this.cache[i] = value!
+    }
+    this.index = index
   }
 
   public parse(): LexerTokenValue[] {
     const tokens: LexerTokenValue[] = []
     while (!this.isEOF()) {
-      tokens.push(this.consume())
+      tokens.push(this.consume()!)
     }
     return tokens
   }
@@ -79,10 +114,10 @@ export class Lexer implements ILexer {
     return this.reader.isEOF()
   }
 
-  private readNextToken(): LexerTokenValue {
+  private readNextToken(): LexerTokenValue | null {
     const nextChar = this.reader.peek()
     switch (this.state) {
-      case TokenizerState.default:
+      case lexerState.default:
         // whitespace
         if (this.isWhitespace(nextChar)) {
           this.afterWhitespace = true
@@ -94,7 +129,7 @@ export class Lexer implements ILexer {
 
         // quote
         if (`"'`.includes(nextChar)) {
-          this.state = TokenizerState.inPhrase
+          this.state = lexerState.inPhrase
           this.quoteTerminator = nextChar
           return this.consumeQuote()
         }
@@ -131,12 +166,12 @@ export class Lexer implements ILexer {
 
         // other, consume normally
         return this.consumeWord()
-      case TokenizerState.inPhrase:
+      case lexerState.inPhrase:
         this.afterWhitespace = false
 
         // in phrase mode, consume until quote terminator
         if (nextChar === this.quoteTerminator) {
-          this.state = TokenizerState.default
+          this.state = lexerState.default
           return this.consumeQuote()
         }
 

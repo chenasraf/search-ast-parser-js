@@ -1,11 +1,11 @@
 import { StringReader } from '../src/reader'
-import { LexerToken, Lexer } from '../src/tokenizer'
+import { LexerToken, Lexer } from '../src/lexer'
 
 describe('Phrase', () => {
   test('Should tokenize single', () => {
     const reader = new StringReader('"phrase"')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.quote)
     expect(tokens[0].value).toBe('"')
@@ -19,8 +19,8 @@ describe('Phrase', () => {
 
   test('Should tokenize multi', () => {
     const reader = new StringReader('"one two three 123 !@#"')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.quote)
     expect(tokens[0].value).toBe('"')
@@ -36,8 +36,8 @@ describe('Phrase', () => {
 describe('Word', () => {
   test('Should tokenize single', () => {
     const reader = new StringReader('word')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('word')
@@ -45,8 +45,8 @@ describe('Word', () => {
 
   test('Should tokenize multi', () => {
     const reader = new StringReader('one two three 123')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('one')
@@ -74,8 +74,8 @@ describe('Word', () => {
 describe('Groups', () => {
   test('Should tokenize single-word group', () => {
     const reader = new StringReader('(word)')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.group)
     expect(tokens[0].value).toBe('(')
@@ -91,8 +91,8 @@ describe('Groups', () => {
 describe('Logical operator OR', () => {
   test('should parse OR separator', () => {
     const reader = new StringReader('word OR word')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('word')
@@ -112,8 +112,8 @@ describe('Logical operator OR', () => {
 
   test('should not parse OR separator mid-word', () => {
     const reader = new StringReader('wordORword')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('wordORword')
@@ -121,8 +121,8 @@ describe('Logical operator OR', () => {
 
   test('should parse | separator', () => {
     const reader = new StringReader('word | word')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('word')
@@ -144,8 +144,8 @@ describe('Logical operator OR', () => {
 describe('Logical operator AND', () => {
   test('should parse AND separator', () => {
     const reader = new StringReader('word AND word')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('word')
@@ -165,8 +165,8 @@ describe('Logical operator AND', () => {
 
   test('should not parse AND separator mid-word', () => {
     const reader = new StringReader('wordANDword')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('wordANDword')
@@ -174,8 +174,8 @@ describe('Logical operator AND', () => {
 
   test('should parse & separator', () => {
     const reader = new StringReader('word & word')
-    const tokenizer = new Lexer(reader)
-    const tokens = tokenizer.parse()
+    const lexer = new Lexer(reader)
+    const tokens = lexer.parse()
 
     expect(tokens[0].token).toBe(LexerToken.word)
     expect(tokens[0].value).toBe('word')

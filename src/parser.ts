@@ -1,5 +1,5 @@
 import { InputReader } from './reader'
-import { ILexer, LexerToken, LexerTokenValue } from './tokenizer'
+import { ILexer, LexerToken, LexerTokenValue } from './lexer'
 
 export interface ParserTokenValue {
   type: 'word' | 'operator' | 'phrase' | 'group'
@@ -38,8 +38,8 @@ export abstract class IParser {
     this.lexer = lexer
   }
 
-  public abstract peek(): ParserToken | null
-  public abstract consume(): ParserToken | null
+  public abstract peek(amount?: number): ParserToken | null
+  public abstract consume(amount?: number): ParserToken | null
   public abstract parse(): ParserToken[]
   public abstract isEOF(): boolean
 }
@@ -51,45 +51,58 @@ export enum ParserState {
 export class Parser extends IParser {
   index = 0
   state = ParserState.default
-  stack: ParserToken[] = []
+  cache: ParserToken[] = []
 
   constructor(lexer: ILexer) {
     super(lexer)
     this.state = ParserState.default
   }
 
-  public peek(): ParserToken | null {
+  public peek(amount = 0): ParserToken | null {
+    const cacheIndex = this.index + amount
     if (this.isEOF()) {
       return null
     }
-    if (this.index < this.stack.length) {
-      return this.stack[this.index]
+    if (cacheIndex < this.cache.length) {
+      return this.cache[cacheIndex]
     }
-
-    const beforePeekIndex = this.lexer.index
-    const value = this.readNextToken()
-    if (value) {
-      this.stack.push(value)
-    }
-    this.lexer.setIndex(beforePeekIndex)
-    return value
+    // const beforePeekIndex = this.lexer.index
+    this.fillCache(cacheIndex)
+    const token = this.cache[cacheIndex]
+    // this.lexer.setIndex(beforePeekIndex)
+    return token
   }
 
-  public consume(): ParserToken | null {
+  public consume(amount = 0): ParserToken | null {
+    const cacheIndex = this.index + amount
+    this.index = cacheIndex + 1
+
+    if (this.cache[cacheIndex]) {
+      return this.cache[cacheIndex]
+    }
     if (this.isEOF()) {
       return null
     }
-    if (this.index < this.stack.length) {
-      this.index++
-      return this.stack[this.index]
-    }
 
-    const token = this.readNextToken()
-    this.index++
-    if (token) {
-      this.stack.push(token)
-    }
+    this.fillCache(cacheIndex)
+    const token = this.cache[cacheIndex]
     return token
+  }
+
+  private fillCache(n: number) {
+    const { index } = this
+    for (let i = 0; i <= n; i++) {
+      this.index = i
+      if (this.isEOF()) {
+        return
+      }
+      if (this.cache[i]) {
+        continue
+      }
+      const value = this.readNextToken()
+      this.cache[i] = value!
+    }
+    this.index = index
   }
 
   public parse(): ParserToken[] {
@@ -109,26 +122,31 @@ export class Parser extends IParser {
   }
 
   private readNextToken(): ParserToken | null {
-    const token = this.lexer.consume()
-    let nextToken = this.lexer.peek()
-    // TODO reset lexer index?
-    while (nextToken?.token === 'whitespace') {
-      this.lexer.consume()
-      nextToken = this.lexer.peek()
-    }
+    let token = this.lexer.peek()
+    let nextToken = this.lexer.peek(1)
+
     switch (this.state) {
       case ParserState.default:
-        if (nextToken.token === 'group') {
+        if (token?.token === 'whitespace') {
           this.index++
+          this.lexer.consume()
           return this.readNextToken()
         }
-        switch (token.token) {
+        while (nextToken && nextToken.token === 'whitespace') {
+          nextToken = this.lexer.peek(1)
+          this.lexer.consume()
+        }
+        if (nextToken?.token === 'group' || nextToken?.token === 'operator') {
+          this.index++
+          return this.consumeOperator(token!, nextToken)
+        }
+        switch (token?.token) {
           case LexerToken.word:
-            return { type: 'word', value: token.value }
+            return { type: 'word', value: this.lexer.consume()!.value }
           case LexerToken.quote:
-            return { type: 'phrase', value: token.value, quote: token.value as '"' }
+            return this.consumePhrase(token)
           case LexerToken.operator:
-            return this.consumeOperator(token)
+            return this.consumeOperator(token, nextToken!)
           default:
             return null
         }
@@ -137,9 +155,20 @@ export class Parser extends IParser {
     }
   }
 
-  private consumeOperator(token: LexerTokenValue): ParserToken | null {
-    const left = this.stack[this.stack.length - 1]
+  private consumePhrase(token: LexerTokenValue): ParserToken | null {
+    this.lexer.consume()
+    const quoteContent = this.lexer.consume()!
+    this.lexer.consume()
+    return { type: 'phrase', value: quoteContent.value, quote: token.value as '"' }
+  }
+
+  private consumeOperator(left: LexerTokenValue, opToken: LexerTokenValue): ParserToken | null {
+    // const left = this.cache[this.cache.length - 1]
+    this.index++
+    this.lexer.consume()
     const right = this.readNextToken()
-    return { type: 'operator', value: token.value, left, right }
+    this.lexer.consume()
+    // const right = this.readNextToken()
+    return { type: 'operator', value: opToken.value, left, right }
   }
 }
