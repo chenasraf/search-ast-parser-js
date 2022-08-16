@@ -1,4 +1,4 @@
-<h1>Search Query Parser for JS</h1>
+<h1>Search Query AST Parser for JS</h1>
 
 This is a package for JS applications that parses search queries with the common search operator
 features such as logical or/and, grouping, phrases (in quotes), etc.
