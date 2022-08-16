@@ -5,6 +5,16 @@
   "main": "index.js",
   "repository": "https://github.com/chenasraf/search-ast-parser-js",
   "author": "Chen Asraf <contact@casraf.dev>",
+  "keywords": [
+    "search",
+    "query",
+    "ast",
+    "parser",
+    "javascript",
+    "typescript",
+    "tree",
+    "syntax"
+  ],
   "license": "MIT",
   "private": false,
   "devDependencies": {

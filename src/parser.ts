@@ -130,15 +130,24 @@ export class Parser extends IParser {
           this.lexer.consume()
           return this.readNextToken()
         }
-        while (nextToken && nextToken.token === 'whitespace') {
-          nextToken = this.lexer.peek(1)
-          this.lexer.consume()
-        }
+        nextToken = this.peekSkipWhitespace(nextToken)
         // lookahead
         switch (nextToken?.token) {
           case LexerToken.operator:
+            // this.index++
+            this.lexer.consume()
+            const parsed = this.parseNormalLexToken(token!)!
+            const nextParsed = this.readNextToken()!
             this.index++
-            return this.consumeOperator(this.parseNormalLexToken(token!)!, nextToken)
+            this.lexer.consume()
+            return this.consumeOperator(parsed, nextToken, nextParsed)
+          case LexerToken.group:
+            if (nextToken.value === ')') {
+              return this.parseNormalLexToken(token)
+            }
+            this.index++
+            this.lexer.consume()
+            return this.consumeGroup(nextToken!)
         }
 
         // no special token coming up, proceed with this token
@@ -147,6 +156,14 @@ export class Parser extends IParser {
       default:
         throw new Error('Bad state')
     }
+  }
+
+  private peekSkipWhitespace(nextToken: LexerTokenValue | null) {
+    while (nextToken && nextToken.token === 'whitespace') {
+      this.lexer.consume()
+      nextToken = this.lexer.peek()
+    }
+    return nextToken
   }
 
   private parseNormalLexToken(token: LexerTokenValue | null): ParserToken | null {
@@ -158,6 +175,9 @@ export class Parser extends IParser {
         const quoteContent = this.lexer.consume()!
         this.lexer.consume()
         return this.consumePhrase(token, quoteContent)
+      case LexerToken.group:
+        // this.lexer.consume()
+        return this.consumeGroup(token!)
       // case LexerToken.operator:
       //   return this.consumeOperator(token, nextToken!)
       default:
@@ -175,11 +195,26 @@ export class Parser extends IParser {
     return { type: 'phrase', value: quoteContent.value, quote: token.value as '"' }
   }
 
-  private consumeOperator(left: ParserToken, opToken: LexerTokenValue): ParserToken | null {
-    this.index++
-    this.lexer.consume()
-    const right = this.readNextToken()
-    this.lexer.consume()
+  private consumeOperator(
+    left: ParserToken,
+    opToken: LexerTokenValue,
+    right: ParserToken,
+  ): ParserToken | null {
+    // this.lexer.consume()
     return { type: 'operator', value: opToken.value, left, right }
+  }
+
+  private consumeGroup(token: LexerTokenValue): ParserToken | null {
+    const children: ParserToken[] = []
+    let nextToken = this.peekSkipWhitespace(this.lexer.peek())
+    while (nextToken && nextToken?.value !== ')') {
+      const child = this.readNextToken()
+      if (child) {
+        children.push(child)
+      }
+      nextToken = this.lexer.peek()
+    }
+    this.lexer.consume()
+    return { type: 'group', children }
   }
 }
