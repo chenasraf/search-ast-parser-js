@@ -1,9 +1,9 @@
 {
-  "name": "search-query-parser",
+  "name": "search-ast-parser",
   "version": "0.1.0",
   "description": "Parses search query syntax into AST tree",
   "main": "index.js",
-  "repository": "https://github.com/chenasraf/search-query-parser-js",
+  "repository": "https://github.com/chenasraf/search-ast-parser-js",
   "author": "Chen Asraf <contact@casraf.dev>",
   "license": "MIT",
   "private": false,

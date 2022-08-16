@@ -92,10 +92,17 @@ const result = [
 
 ## How to use
 
+Install the package using `npm` or `yarn`:
+
+```shell
+npm install search-ast-parser
+yarn add search-ast-parser
+```
+
 Simply pass a string to the parse function to get the results.
 
 ```js
-import { parse } from 'search-query-parser'
+import { parse } from 'search-ast-parser'
 const results = parse('(mango banana lemon) OR apple -pineapple')
 ```
 
