@@ -51,8 +51,8 @@ const result = [
 
 **Input:** `(mango banana lemon) OR apple -pineapple`
 
-**Explanation:** One of the word: "mango", "banana", "lemon" OR "apple"; exclude all results
-containing "pineapple"
+**Explanation:** Either one of the words: "mango", "banana", or "lemon"; OR the word "apple";
+exclude all results containing "pineapple"
 
 **Output**:
 
@@ -108,7 +108,8 @@ This is the comprehensive list of operators and their object results:
 - **Word:** `example`
 
   Any single word. Only alpha-numeric characters, dashes and underscores are considered a word. The
-  rest is ignored.
+  rest is considered whitespace, which is ignored by the parser, but will cause the surrounding
+  tokens to be broken apart.
 
   **Object:**
 

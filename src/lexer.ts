@@ -110,11 +110,7 @@ export class Lexer implements ILexer {
       case lexerState.default:
         // whitespace
         if (this.isWhitespace(nextChar)) {
-          this.afterWhitespace = true
-          return {
-            value: this.reader.consume(),
-            token: LexerToken.whitespace,
-          }
+          return this.consumeWhitespace()
         }
 
         // quote
@@ -154,8 +150,8 @@ export class Lexer implements ILexer {
           return this.consumeGroup()
         }
 
-        // other, consume normally
-        return this.consumeWord()
+        // other, consider as whitespace
+        return this.consumeWhitespace()
       case lexerState.inPhrase:
         this.afterWhitespace = false
 
@@ -169,6 +165,14 @@ export class Lexer implements ILexer {
         return this.consumePhrase()
       default:
         throw new Error('bad state')
+    }
+  }
+
+  private consumeWhitespace() {
+    this.afterWhitespace = true
+    return {
+      value: this.reader.consume(),
+      token: LexerToken.whitespace,
     }
   }
 
