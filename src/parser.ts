@@ -110,6 +110,9 @@ export class Parser extends IParser {
       if (!token) {
         return tokens
       }
+      if (token.type === 'operator' && tokens.length && token.left === undefined) {
+        token.left = tokens.pop()
+      }
       tokens.push(token)
     }
     return tokens
@@ -145,6 +148,9 @@ export class Parser extends IParser {
             if (nextToken.value === ')') {
               return this.parseNormalLexToken(token)
             }
+            if (token?.token == 'operator') {
+              return this.consumeOperator(this.cache[this.index - 1], token, this.readNextToken()!)
+            }
             this.index++
             this.lexer.consume()
             return this.consumeGroup(nextToken!)
@@ -179,7 +185,7 @@ export class Parser extends IParser {
         // this.lexer.consume()
         return this.consumeGroup(token!)
       // case LexerToken.operator:
-      //   return this.consumeOperator(token, nextToken!)
+      //   return this.consumeOperator(this.cache[this.index - 1], token, this.readNextToken())
       default:
         return null
     }
