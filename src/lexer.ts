@@ -1,57 +1,79 @@
 import { InputReader } from './reader'
 
-export enum lexerState {
+/** The state of the lexer */
+export enum LexerState {
+  /** Default state, reading words */
   default,
+  /** In phrase mode, reading characters until quote terminator */
   inPhrase,
 }
 
+/** The type of token */
 export enum LexerToken {
+  /** A group token, either ( or ) */
   group = 'group',
+  /** An operator token, either and, or, | or & (case-insensitive) */
   operator = 'operator',
+  /** A word token, a sequence of alphanumeric characters */
   word = 'word',
+  /** A quote token, either ' or " */
   quote = 'quote',
+  /** A whitespace token, a sequence of whitespace characters */
   whitespace = 'whitespace',
 }
 
+/** A token value */
 export interface LexerTokenValue {
+  /** The value of the token */
   value: string
+  /** The type of the token */
   token: LexerToken
 }
 
+/** A lexer interface */
 export abstract class ILexer {
+  /** Peek at the next {n} token(s) */
   public abstract peek(amount?: number): LexerTokenValue | null
+  /** Consume the next {n} token(s) */
   public abstract consume(amount?: number): LexerTokenValue | null
+  /** Check if the lexer is at the end of the input */
   public abstract isEOF(): boolean
+  /** Parse the input into tokens */
   public abstract parse(): LexerTokenValue[]
-  public abstract index: number
+  /** Set the index of the lexer */
   public abstract setIndex(n: number): void
+  /** Set the index of the lexer */
+  public abstract index: number
+  /** The index of the next token */
+  public peekIndex: number = 0
 }
 
+/** The default lexer */
 export class Lexer implements ILexer {
-  reader: InputReader<string>
-  state: lexerState = lexerState.default
-  quoteTerminator: string | null = null
-  index: number = 0
-  peekIndex: number = 0
-  afterWhitespace: boolean = false
-  cache: LexerTokenValue[] = []
+  #reader: InputReader<string>
+  #state: LexerState = LexerState.default
+  #quoteTerminator: string | null = null
+  public index: number = 0
+  public peekIndex: number = 0
+  #afterWhitespace: boolean = false
+  #cache: LexerTokenValue[] = []
 
   constructor(reader: InputReader<string>) {
-    this.reader = reader
+    this.#reader = reader
   }
 
   public peek(amount = 0): LexerTokenValue | null {
     const cacheIndex = this.index + amount
 
-    if (this.cache[cacheIndex]) {
-      return this.cache[cacheIndex]
+    if (this.#cache[cacheIndex]) {
+      return this.#cache[cacheIndex]
     }
     if (this.isEOF()) {
       return null
     }
 
     this.fillCache(cacheIndex)
-    const token = this.cache[cacheIndex]
+    const token = this.#cache[cacheIndex]
 
     return token
   }
@@ -60,15 +82,15 @@ export class Lexer implements ILexer {
     const cacheIndex = this.index + amount
     this.index = cacheIndex + 1
 
-    if (this.cache[cacheIndex]) {
-      return this.cache[cacheIndex]
+    if (this.#cache[cacheIndex]) {
+      return this.#cache[cacheIndex]
     }
     if (this.isEOF()) {
       return null
     }
 
     this.fillCache(cacheIndex)
-    const token = this.cache[cacheIndex]
+    const token = this.#cache[cacheIndex]
     return token
   }
 
@@ -79,11 +101,11 @@ export class Lexer implements ILexer {
       if (this.isEOF()) {
         return
       }
-      if (this.cache[i]) {
+      if (this.#cache[i]) {
         continue
       }
       const value = this.readNextToken()
-      this.cache[i] = value!
+      this.#cache[i] = value!
     }
     this.index = index
   }
@@ -101,13 +123,13 @@ export class Lexer implements ILexer {
   }
 
   public isEOF(): boolean {
-    return this.reader.isEOF()
+    return this.#reader.isEOF()
   }
 
   private readNextToken(): LexerTokenValue | null {
-    const nextChar = this.reader.peek()
-    switch (this.state) {
-      case lexerState.default:
+    const nextChar = this.#reader.peek()
+    switch (this.#state) {
+      case LexerState.default:
         // whitespace
         if (this.isWhitespace(nextChar)) {
           return this.consumeWhitespace()
@@ -115,19 +137,19 @@ export class Lexer implements ILexer {
 
         // quote
         if (`"'`.includes(nextChar)) {
-          this.state = lexerState.inPhrase
-          this.quoteTerminator = nextChar
+          this.#state = LexerState.inPhrase
+          this.#quoteTerminator = nextChar
           return this.consumeQuote()
         }
 
         // other words
         if (this.isAlphanumeric(nextChar)) {
           // guard OR
-          if (this.afterWhitespace && this.peekExact('OR')) {
+          if (this.#afterWhitespace && this.peekExact('OR')) {
             return this.consumeOr()
           }
           // guard AND
-          if (this.afterWhitespace && this.peekExact('AND')) {
+          if (this.#afterWhitespace && this.peekExact('AND')) {
             return this.consumeAnd()
           }
 
@@ -152,12 +174,12 @@ export class Lexer implements ILexer {
 
         // other, consider as whitespace
         return this.consumeWhitespace()
-      case lexerState.inPhrase:
-        this.afterWhitespace = false
+      case LexerState.inPhrase:
+        this.#afterWhitespace = false
 
         // in phrase mode, consume until quote terminator
-        if (nextChar === this.quoteTerminator) {
-          this.state = lexerState.default
+        if (nextChar === this.#quoteTerminator) {
+          this.#state = LexerState.default
           return this.consumeQuote()
         }
 
@@ -169,16 +191,16 @@ export class Lexer implements ILexer {
   }
 
   private consumeWhitespace() {
-    this.afterWhitespace = true
+    this.#afterWhitespace = true
     return {
-      value: this.reader.consume(),
+      value: this.#reader.consume(),
       token: LexerToken.whitespace,
     }
   }
 
   private consumeQuote(): LexerTokenValue {
     return {
-      value: this.reader.consume(),
+      value: this.#reader.consume(),
       token: LexerToken.quote,
     }
   }
@@ -214,12 +236,12 @@ export class Lexer implements ILexer {
   }
 
   private peekExact(word: string) {
-    let nextChar = this.reader.peek()
+    let nextChar = this.#reader.peek()
     for (let i = 0; i < word.length; i++) {
       if (nextChar !== word[i]) {
         return false
       }
-      nextChar = this.reader.peek(i + 1)
+      nextChar = this.#reader.peek(i + 1)
     }
     return true
   }
@@ -234,22 +256,22 @@ export class Lexer implements ILexer {
 
   private consumeLength(times = 1) {
     for (let i = 0; i < times; i++) {
-      this.reader.consume()
+      this.#reader.consume()
     }
   }
 
   private consumeGroup(): LexerTokenValue {
     return {
-      value: this.reader.consume(),
+      value: this.#reader.consume(),
       token: LexerToken.group,
     }
   }
 
   private consumePhrase(): LexerTokenValue {
-    let nextChar = this.reader.consume()
+    let nextChar = this.#reader.consume()
     let value = nextChar
-    while ((nextChar = this.reader.peek()) && nextChar !== this.quoteTerminator) {
-      value += this.reader.consume()
+    while ((nextChar = this.#reader.peek()) && nextChar !== this.#quoteTerminator) {
+      value += this.#reader.consume()
     }
     return {
       value,
@@ -267,8 +289,8 @@ export class Lexer implements ILexer {
 
   private consumeWholeWord() {
     let value = ''
-    while (this.isAlphanumeric(this.reader.peek())) {
-      value += this.reader.consume()
+    while (this.isAlphanumeric(this.#reader.peek())) {
+      value += this.#reader.consume()
     }
     return value
   }

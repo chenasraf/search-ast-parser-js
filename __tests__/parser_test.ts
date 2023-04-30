@@ -57,6 +57,7 @@ test('should parse multiple groups and logical operators', () => {
   const lexer = new Lexer(reader)
   const parser = new Parser(lexer)
   const tokens = parser.parse()
+  console.log('tokens', JSON.stringify(tokens, undefined, 2))
   expect(tokens[0]).toEqual({
     type: 'operator',
     value: 'and',
