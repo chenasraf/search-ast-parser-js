@@ -3,8 +3,11 @@
 This is a package for JS applications that parses search queries with the common search operator
 features such as logical or/and, grouping, phrases (in quotes), etc.
 
-This package **does not** implement a search mechanism using the resulting tree, that is up to the
-package user (you). It only returns the logical tree of search.
+This package only implements a very simple `filter` utility function that takes a list of items or
+objects with a map to string function, and returns elements matching the query.
+
+For more advanced use-cases, you can easily implement your own filter function.  
+See [utils.ts#filter](/src/utils.ts#L10) for an example.
 
 ---
 
