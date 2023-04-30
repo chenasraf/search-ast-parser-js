@@ -18,9 +18,17 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/release-notes-generator": "^11.0.1",
     "@types/jest": "^28.1.6",
     "@types/node": "^18.7.3",
+    "conventional-changelog": "^3.1.25",
+    "conventional-changelog-cli": "^2.2.2",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
     "jest": "^28.1.3",
+    "semantic-release": "^21.0.2",
+    "semantic-release-conventional-commits": "^3.0.0",
     "ts-jest": "^28.0.7",
     "ts-node": "^10.9.1",
     "typedoc": "^0.24.6",
@@ -32,6 +40,7 @@
     "build-example": "tsc -p ./tsconfig.example.json && yarn copy-files && yarn package",
     "build-docs": "typedoc",
     "copy-files": "cp README.md LICENSE build/",
-    "package": "jq 'del(.scripts, .devDependencies)' < package.json > build/package.json"
+    "package": "jq 'del(.scripts, .devDependencies)' < package.json > build/package.json",
+    "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -r 0"
   }
 }
