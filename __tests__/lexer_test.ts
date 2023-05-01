@@ -89,7 +89,7 @@ describe('Groups', () => {
 })
 
 describe('Logical operator OR', () => {
-  test('should parse OR separator', () => {
+  test('Should parse OR separator', () => {
     const reader = new StringReader('word OR word')
     const lexer = new Lexer(reader)
     const tokens = lexer.parse()
@@ -110,7 +110,7 @@ describe('Logical operator OR', () => {
     expect(tokens[4].value).toBe('word')
   })
 
-  test('should not parse OR separator mid-word', () => {
+  test('Should not parse OR separator mid-word', () => {
     const reader = new StringReader('wordORword')
     const lexer = new Lexer(reader)
     const tokens = lexer.parse()
@@ -119,7 +119,7 @@ describe('Logical operator OR', () => {
     expect(tokens[0].value).toBe('wordORword')
   })
 
-  test('should parse | separator', () => {
+  test('Should parse | separator', () => {
     const reader = new StringReader('word | word')
     const lexer = new Lexer(reader)
     const tokens = lexer.parse()
@@ -142,7 +142,7 @@ describe('Logical operator OR', () => {
 })
 
 describe('Logical operator AND', () => {
-  test('should parse AND separator', () => {
+  test('Should parse AND separator', () => {
     const reader = new StringReader('word AND word')
     const lexer = new Lexer(reader)
     const tokens = lexer.parse()
@@ -163,7 +163,7 @@ describe('Logical operator AND', () => {
     expect(tokens[4].value).toBe('word')
   })
 
-  test('should not parse AND separator mid-word', () => {
+  test('Should not parse AND separator mid-word', () => {
     const reader = new StringReader('wordANDword')
     const lexer = new Lexer(reader)
     const tokens = lexer.parse()
@@ -172,7 +172,7 @@ describe('Logical operator AND', () => {
     expect(tokens[0].value).toBe('wordANDword')
   })
 
-  test('should parse & separator', () => {
+  test('Should parse & separator', () => {
     const reader = new StringReader('word & word')
     const lexer = new Lexer(reader)
     const tokens = lexer.parse()
