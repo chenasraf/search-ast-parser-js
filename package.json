@@ -1,6 +1,6 @@
 {
-  "name": "search-ast-parser",
-  "version": "0.1.0",
+  "name": "search-parse",
+  "version": "1.0.0",
   "description": "Parses search query syntax into AST tree",
   "main": "index.js",
   "repository": "https://github.com/chenasraf/search-ast-parser-js",
