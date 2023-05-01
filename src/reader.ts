@@ -15,7 +15,20 @@ export abstract class InputReader<T> {
 }
 
 /**
- * Buffer Input Reader
+ * This reader is used to read from a buffer instead of a string, which is useful for reading from
+ * files, or for better performance as buffer indexes are loaded lazily.
+ *
+ * In most cases, you would want to use the regular `parse` function, which uses a dynamic reader from the input.
+ *
+ * If you still want to create a buffer reader, you can do so by using the `BufferReader` class.
+ *
+ * @example
+ * ```ts
+ * const reader = new BufferReader(Buffer.from('(apple OR orange) AND (drink OR juice)'))
+ * const lexer = new Lexer(reader)
+ * const parser = new Parser(lexer)
+ * const tokens = parser.parse()
+ * ```
  */
 export class BufferReader implements InputReader<string> {
   #buffer: Buffer
@@ -27,11 +40,11 @@ export class BufferReader implements InputReader<string> {
   }
 
   public peek(n = 0): string {
-    return this.#buffer.subarray(this.index + n, 1).toString()
+    return this.#buffer.subarray(this.index + n, this.index + n + 1).toString()
   }
 
   public consume(n = 0): string {
-    const result = this.#buffer.subarray(this.index + n, 1).toString()
+    const result = this.#buffer.subarray(this.index + n, this.index + n + 1).toString()
     this.index++
     return result
   }
@@ -46,7 +59,21 @@ export class BufferReader implements InputReader<string> {
 }
 
 /**
- * String Input Reader
+ * This reader is used to read from a string. This is usually worse for performance than reading
+ * from a buffer, as buffer indexes are loaded lazily, but for most cases it is good enough.
+ *
+ * In most cases, you would want to use the regular `parse` function, which uses a dynamic reader
+ * from the input.
+ *
+ * If you still want to create a string reader, you can do so by using the `StringReader` class.
+ *
+ * @example
+ * ```ts
+ * const reader = new StringReader('(apple OR orange) AND (drink OR juice)')
+ * const lexer = new Lexer(reader)
+ * const parser = new Parser(lexer)
+ * const tokens = parser.parse()
+ * ```
  */
 export class StringReader implements InputReader<string> {
   #string: string
