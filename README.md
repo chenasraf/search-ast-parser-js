@@ -1,5 +1,8 @@
 <h1>Search Query AST Parser for JS</h1>
 
+[NPM](https://www.npmjs.com/package/search-parse) |
+[Documentation](https://chenasraf.github.io/search-ast-parser-js)
+
 This is a package for JS applications that parses search queries with the common search operator
 features such as logical or/and, grouping, phrases (in quotes), etc.
 
