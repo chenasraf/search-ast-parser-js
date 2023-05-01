@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.0.1-develop.1](https://github.com/chenasraf/search-ast-parser-js/compare/v1.0.0...v1.0.1-develop.1) (2023-05-01)
+
+
+### Bug Fixes
+
+* readme toc ([25168ac](https://github.com/chenasraf/search-ast-parser-js/commit/25168acfee55f1e813e3555d364f53105aad9319))
+
 ## 1.0.0 (2023-04-30)
 
 
