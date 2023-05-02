@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.0.1](https://github.com/chenasraf/search-ast-parser-js/compare/v1.0.0...v1.0.1) (2023-05-01)
+
+
+### Bug Fixes
+
+* buffer reader ([dc2fde1](https://github.com/chenasraf/search-ast-parser-js/commit/dc2fde1da40fc120d5624973b241cc5a7424f2d5))
+* readme toc ([6c777f1](https://github.com/chenasraf/search-ast-parser-js/commit/6c777f1bdd53a75cba5e1fad44ddb697f70ff8b8))
+
 ## [1.0.1-develop.1](https://github.com/chenasraf/search-ast-parser-js/compare/v1.0.0...v1.0.1-develop.1) (2023-05-01)
 
 
